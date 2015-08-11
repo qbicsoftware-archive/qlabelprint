@@ -49,7 +49,7 @@ else
 fi
 ```
 
-*** 3. Copying barcodes to remote host.*** The script scans the given directory for pdfs and only accepts small files (as the barcodes are usually very small). If the checks are passed, it calls `rsync`for the copying.
+***3. Copying barcodes to remote host.*** The script scans the given directory for pdfs and only accepts small files (as the barcodes are usually very small). If the checks are passed, it calls `rsync`for the copying.
 
 ```bash
 rsync --progress $file $USER@$PRINTER_HOST:$HOST_DIR/
