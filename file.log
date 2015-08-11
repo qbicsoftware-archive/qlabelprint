@@ -1,0 +1,12 @@
+total 24
+-rw-r--r--  1 svenfillinger  staff  1072 11 Aug 10:51 LICENSE
+-rw-r--r--  1 svenfillinger  staff   178 11 Aug 10:51 README.md
+drwxr-xr-x  3 svenfillinger  staff   102 11 Aug 11:16 example_barcode
+-rwxr-xr-x  1 svenfillinger  staff  2677 11 Aug 10:53 qbcprinter.sh
+total 40
+-rw-r--r--  1 svenfillinger  staff  1072 11 Aug 10:51 LICENSE
+-rw-r--r--  1 svenfillinger  staff   178 11 Aug 10:51 README.md
+drwxr-xr-x  3 svenfillinger  staff   102 11 Aug 11:16 example_barcode
+-rw-r--r--  1 svenfillinger  staff   273 11 Aug 13:45 file.log
+-rwxr-xr-x  1 svenfillinger  staff  2677 11 Aug 10:53 qbcprinter.sh
+-rw-r--r--  1 svenfillinger  staff   273 11 Aug 13:45 test

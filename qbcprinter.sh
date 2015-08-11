@@ -16,6 +16,11 @@ function error_exit
 	exit 1
 }
 
+function log_action
+{
+	echo "${PROGNAME}:$(date +%Y-%m-%d %H:%M:%S): ${1:-"Unknown log action"}" 1>&2
+}
+
 # the script's name
 PROGNAME=$(basename $0)
 # the directory containing the barcodes to rsync and print
@@ -28,6 +33,8 @@ USER="printeruser"
 HOST_DIR="printjobs"
 # define the file size limit for the barcodes in kBytes
 FILE_SIZE_LIMIT=100
+# define the hosts log file
+HOST_LOG_FILE="labelprinter.log"
 
 
 #  Check if command param is provided or is == '-h'
@@ -58,14 +65,14 @@ if [ -d "$DIR_BARCODES" ]; then
 
 			# check if the maximum file size is exceeded!
 			if ! [ $(du -k "$file" | cut -f -1) -le $FILE_SIZE_LIMIT ]; then
-				printf '%s\n' "$file exceeds the maximum file size!!"
+				printf '%s\n' ""$file" exceeds the maximum file size!!"
 				continue
 			fi
 
-			printf '%s\n' "Submitting file to host: $file"
+			printf '%s\n' "Submitting file to host: "$file""
 
 			# submit the file to the remote host
-			rsync --progress $file $USER@$PRINTER_HOST:$HOST_DIR/
+			rsync --progress -- "$file" $USER@$PRINTER_HOST:$HOST_DIR/
 
 			# Check if transfer was successful
 			if [ $? == 0 ]; then
@@ -74,15 +81,30 @@ if [ -d "$DIR_BARCODES" ]; then
 				printf '%s\n' "--------------------------------------------"
 
 				# now connect to the printserver and trigger the printjob
-				ssh $USER@$PRINTER_HOST "lp $HOST_DIR/$(basename $file)"
+				ssh $USER@$PRINTER_HOST "{ printf '%s\t' "$(date +%Y-%m-%d_%H:%M:%S):";
+					lp $HOST_DIR/$(basename "$file"); } | tee -a $HOST_LOG_FILE"
+
 
 				if [ $? == 0 ]; then
 					printf '%s\n' "--------------------------------------------"
 					printf '%s\n' "Successfully printed file from remote host."
 					printf '%s\n' "--------------------------------------------"
+					message="$(date +%Y-%m-%d_%H:%M:%S):\tSuccessfully printed $(basename $file)"
+					ssh $USER@$PRINTER_HOST "printf '%b\n' \"$message\" | tee -a $HOST_LOG_FILE"
 				else
+					message="[SUCCESS] $(date +%Y-%m-%d_%H:%M:%S):\tFailed to print $(basename $file)"
+					ssh $USER@$PRINTER_HOST "printf '%b\n' \"$message\" | tee -a $HOST_LOG_FILE"
 					error_exit "Line $LINENO: Could not print from remote host."
 				fi
+
+				# remove file after printing from the printserver
+				ssh $USER@$PRINTER_HOST "rm $HOST_DIR/$(basename "$file")"
+
+				if [ $? != 0 ]; then
+					message="[ERROR] $(date +%Y-%m-%d_%H:%M:%S):\tCould not delete $(basename "$file") from remote dir."
+					ssh $USER@$PRINTER_HOST "printf '%b\n' \"$message\" | tee -a $HOST_LOG_FILE"
+				fi
+
 			fi
 		fi
 	done
