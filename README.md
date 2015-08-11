@@ -62,8 +62,10 @@ After successfully copying the files, the script automatically calls the `lp` co
 ssh $USER@$PRINTER_HOST "lp $HOST_DIR/$(basename $file)"
 ```
 
+***4. Deleting the barcodes on remote host.*** After printing the barcodes, the files on the printer-server are deleted again, and the process is logged in `labelprinter.log` in the printeruser's home folder.
+
 # TODO
 
-* Clean up files after successful printing
+* (DONE) Clean up files after successful printing
 
 
